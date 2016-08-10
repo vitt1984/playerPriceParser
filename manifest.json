@@ -1,0 +1,31 @@
+{
+  "manifest_version": 2,
+  "name": "Hattrick",
+  "version": "1.0",
+//  "applications": {
+    // "gecko": {
+    //   "id": "hattrick@mozilla.org"
+  //  }
+  //},
+
+  "background": {
+    "persistent": false,
+    "scripts": ["background.js"]
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["https://*.hattrick.org/*"],
+      "js": ["content.js"]
+    }
+  ],
+  
+  "permissions": [
+    "activeTab",
+    "tabs"
+  ],
+
+  "browser_action": {
+    "default_title": "Hattrick"
+  }
+}
