@@ -5,7 +5,7 @@
 // chrome.browserAction.setBadgeText({text: '(ツ)'});
 // chrome.browserAction.setBadgeBackgroundColor({color: '#eae'});
 
-
+//http://stackoverflow.com/questions/28858027/how-to-read-file-from-chrome-extension
 //http://stackoverflow.com/questions/21314897/access-dom-elements-through-chrome-extension
 
 /* A function creator for callbacks */
