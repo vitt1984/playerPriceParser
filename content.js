@@ -96,7 +96,7 @@ function getPlayerId( transferPlayerInfo ) {
   let playerIdMatch = playerIdRegex.exec( transferPlayerInfo.outerHTML );
   var playerid = undefined;
   if ( playerIdMatch ) {
-    playerid = Number( playerIdMatch[1] );
+    playerid = playerIdMatch[1];
   }
   // http://stackoverflow.com/questions/3891641/regex-test-only-works-every-other-time
   // due to a bug, we call the regex a second time
@@ -149,96 +149,47 @@ function getPlayerInfo( transferPlayerInfo ) {
   return playerProps;
 }
 
-function prepareDb( db ) {
-
-  if (!db.objectStoreNames.contains('players')) {
-    let objectStore = db.createObjectStore('players', { keyPath: 'playerId' });
-    objectStore.createIndex('defending', ['age', 'defending', 'passing', 'winger']);
-  }
-}
-
-function addPlayerToDb( player, store ) {
-  var checkKeyRequest = store.get(player['playerId']);
-
-  checkKeyRequest.onsuccess = (e) => {
-
-    if ( !e.srcElement.result ) {
-      var request = store.add(player);
-
-      request.onerror = function(e) {
-        console.log('Error when adding player to db', e.target.error, player);
-        //some type of error handler
-      };
-    } else {
-      console.log('not adding existing player');
-    }
-  };
-
-  checkKeyRequest.onerror = (e) => {
-    console.log('Error when checking player in DB', e.target.error, player);
-  };
-}
-
 // MAIN
 
-var openRequest = indexedDB.open('hattrickDb',6);
+var db = new PouchDB('http://localhost:5984/hattrick');
 
-openRequest.onerror = function(e) {
-  console.error('Error', e);
-};
+if ( transferResultPage.exec(window.location.href) ) {
+  console.error('gathering player info');
 
-openRequest.onupgradeneeded = function(e) {
-  var db = e.target.result;
+  var transferPlayerInfoList = document.getElementsByClassName('transferPlayerInfo');
+  var playerList = [];
 
-  prepareDb ( db );
-};
+  for ( index in transferPlayerInfoList ) {
+    let transferPlayerInfo = transferPlayerInfoList[index];
+    // console.error(transferPlayerInfo.outerText);
 
-openRequest.onsuccess = function(e) {
-  console.log('Success!');
-  var db = e.target.result;
-
-  let transaction = db.transaction(['players'],'readwrite');
-  let store = transaction.objectStore('players');
-
-  if ( transferResultPage.exec(window.location.href) ) {
-    console.error('gathering player info');
-
-    var transferPlayerInfoList = document.getElementsByClassName('transferPlayerInfo');
-    var playerList = [];
-
-    for ( index in transferPlayerInfoList ) {
-      let transferPlayerInfo = transferPlayerInfoList[index];
-      // console.error(transferPlayerInfo.outerText);
-
-      let player = {
-        //'age'     : getPlayerAge( transferPlayerInfo ),
-        'playerId': getPlayerId( transferPlayerInfo ),
-        'deadline': getDeadline( transferPlayerInfo ),
-        'finalPrice': undefined
-      };
-
-      if ( player.deadline ) {
-        Object.assign(player, getPlayerInfo( transferPlayerInfo ));
-
-        addPlayerToDb( player, store );
-
-        playerList.push(player);
-      }
-    }
-
-    console.error(playerList);
-    console.error('transaction', transaction);
-
-    transaction.oncomplete = () => {
-      nextPageLink = document.getElementById('ctl00_ctl00_CPContent_CPMain_ucPager2_next');
-      if ( nextPageLink && !nextPageLink.hasAttribute('disabled') ) {
-        nextPageLink.click();
-      }
+    let player = {
+      //'age'     : getPlayerAge( transferPlayerInfo ),
+      '_id': getPlayerId( transferPlayerInfo ),
+      'deadline': getDeadline( transferPlayerInfo ),
+      'finalPrice': undefined
     };
 
+    if ( player.deadline ) {
+      Object.assign(player, getPlayerInfo( transferPlayerInfo ));
+
+      playerList.push(player);
+
+    }
   }
 
-};
+  console.error(playerList);
+  db.bulkDocs(playerList).then( () => {
+    nextPageLink = document.getElementById('ctl00_ctl00_CPContent_CPMain_ucPager2_next');
+    if ( nextPageLink && !nextPageLink.hasAttribute('disabled') ) {
+      nextPageLink.click();
+    }
+  });
+
+}
+
+
+
 
 
 /* Listen for messages */
