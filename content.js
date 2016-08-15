@@ -20,10 +20,10 @@ let propertiesValues = {
   'solid'             : 7,
   'passable'          : 6,
   'inadequate'        : 5,
-  'weak'              : 4,
-  'poor'              : 3,
-  'wretched'          : 2,
-  'disastrous'        : 1,
+  'weak'              : 0,
+  'poor'              : 0,
+  'wretched'          : 0,
+  'disastrous'        : 0,
   'non-existent'      : 0,
   // specialties
   'Technical'     : 5,
@@ -152,7 +152,8 @@ function getPlayerInfo( transferPlayerInfo ) {
 function prepareDb( db ) {
 
   if (!db.objectStoreNames.contains('players')) {
-    db.createObjectStore('players', { keyPath: 'playerId' });
+    let objectStore = db.createObjectStore('players', { keyPath: 'playerId' });
+    objectStore.createIndex('defending', ['age', 'defending', 'passing', 'winger']);
   }
 }
 
@@ -180,7 +181,7 @@ function addPlayerToDb( player, store ) {
 
 // MAIN
 
-var openRequest = indexedDB.open('hattrickDb',5);
+var openRequest = indexedDB.open('hattrickDb',6);
 
 openRequest.onerror = function(e) {
   console.error('Error', e);
@@ -196,8 +197,8 @@ openRequest.onsuccess = function(e) {
   console.log('Success!');
   var db = e.target.result;
 
-  var transaction = db.transaction(['players'],'readwrite');
-  var store = transaction.objectStore('players');
+  let transaction = db.transaction(['players'],'readwrite');
+  let store = transaction.objectStore('players');
 
   if ( transferResultPage.exec(window.location.href) ) {
     console.error('gathering player info');
@@ -210,6 +211,7 @@ openRequest.onsuccess = function(e) {
       // console.error(transferPlayerInfo.outerText);
 
       let player = {
+        //'age'     : getPlayerAge( transferPlayerInfo ),
         'playerId': getPlayerId( transferPlayerInfo ),
         'deadline': getDeadline( transferPlayerInfo ),
         'finalPrice': undefined
