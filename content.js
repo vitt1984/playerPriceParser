@@ -186,10 +186,24 @@ if ( transferResultPage.exec(window.location.href) ) {
     }
   });
 
+  // EXAMPLE QUERY
+
+  var passingFunction = function(doc) {
+    emit(doc.passing);
+  }
+
+  db.query(passingFunction, {
+    startkey     : 5,
+    endkey       : 7,
+    limit        : 5,
+    include_docs : true
+  }).then(function (result) {
+    console.error('QUERY_RESULT:', result);
+  }).catch(function (err) {
+    console.error('EERRRER:', err);
+  });
+
 }
-
-
-
 
 
 /* Listen for messages */
