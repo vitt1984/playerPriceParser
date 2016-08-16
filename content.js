@@ -174,28 +174,32 @@ if ( transferSearchPage.exec(window.location.href) ) {
 
   // get requested searches
   searchesDb.allDocs({include_docs: true, limit: 1}).then( (searches) => {
-    let search = searches.rows[0].doc;
-    console.error('doing search', search);
-    searchesDb.remove( search._id, search._rev );
+    if ( searches.rows.length > 0 ) {
+      let search = searches.rows[0].doc;
+      console.error('doing search', search);
+      searchesDb.remove( search._id, search._rev );
 
-    delete search._id;
-    delete search._rev;
+      delete search._id;
+      delete search._rev;
 
-    setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlAgeMin', search.age.min);
-    setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlAgeMax', search.age.max);
+      setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlAgeMin', search.age.min);
+      setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlAgeMax', search.age.max);
 
-    let counter = 1;
-    for ( property in search )  {
-      if (property !== 'age') {
-        console.error('setting', property, search[property]);
-        setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlSkill'.concat(counter), property);
-        console.error('setting min', property, search[property]);
-        setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlSkill'.concat(counter, 'Min'), search[property].min, propertiesValues);
-        console.error('setting max', property, search[property]);
-        setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlSkill'.concat(counter, 'Max'), search[property].max, propertiesValues);
+      let counter = 1;
+      for ( property in search )  {
+        if (property !== 'age') {
+          console.error('setting', property, search[property]);
+          setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlSkill'.concat(counter), property);
+          console.error('setting min', property, search[property]);
+          setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlSkill'.concat(counter, 'Min'), search[property].min, propertiesValues);
+          console.error('setting max', property, search[property]);
+          setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlSkill'.concat(counter, 'Max'), search[property].max, propertiesValues);
+        }
       }
+      document.getElementById('ctl00_ctl00_CPContent_CPMain_butSearch').click();
+    } else {
+      console.error('no search to perform');
     }
-    document.getElementById('ctl00_ctl00_CPContent_CPMain_butSearch').click();
 
   });
 
