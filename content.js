@@ -76,7 +76,10 @@ let playerProperties = {
   },
   'price'      : {
     regex: /([0-9\s]+)\sRupees/g,
-    numeric: true
+    numeric: true,
+    modifier: ( value ) => {
+      return value * 0.25; // Rupees to euro
+    }
   },
   'tsi'        : {
     regex: /TSI:\s+([0-9\s]+)/g,
@@ -152,6 +155,9 @@ function getPlayerInfo( transferPlayerInfo ) {
           console.warn('value', value,'could not be translated into numeric, saving raw');
         }
       }
+      if ( playerProperties[property].modifier ) {
+        value = playerProperties[property].modifier( value );
+      }
       playerProps[property] = value;
       //console.error(property, matchingRegex[1]);
     } else {
@@ -208,6 +214,7 @@ if ( transferSearchPage.exec(window.location.href) ) {
           console.error('setting max', property, search[property]);
           setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlSkill'.concat(counter, 'Max'), search[property].max, propertiesValues);
         }
+        counter = counter + 1;
       }
       document.getElementById('ctl00_ctl00_CPContent_CPMain_butSearch').click();
     } else {
@@ -253,7 +260,7 @@ if ( transferSearchPage.exec(window.location.href) ) {
     } else {
       transferSearchLink = document.getElementById('ctl00_ctl00_CPContent_ucSubMenu_A4');
       if ( transferSearchLink ) {
-        //transferSearchLink.click();
+        transferSearchLink.click();
       }
     }
   });
