@@ -15,10 +15,37 @@ function doStuffWithDOM(element) {
 
 chrome.browserAction.onClicked.addListener(function(aTab) {
   //chrome.tabs.create({'url': 'http://chilloutandwatchsomecatgifs.com/', 'active': true});
-  chrome.extension.getBackgroundPage().console.log('foo');
-  chrome.extension.getBackgroundPage().console.log(aTab);
-  chrome.tabs.sendMessage(aTab.id, { text: "report_back" },
-                          doStuffWithDOM);
+
+  var searchesDb = new PouchDB('http://localhost:5984/hattrick_searches');
+
+  searchesDb.put({
+    _id: '2',
+    defending: {
+      min: 14,
+      max: 17
+    },
+    age: {
+      min: 23,
+      max: 27
+    }
+  });
+
+  searchesDb.put({
+    _id: '3',
+    playmaking: {
+      min: 14,
+      max: 17
+    },
+    age: {
+      min: 23,
+      max: 27
+    }
+  });
+
+  // chrome.extension.getBackgroundPage().console.log('foo');
+  // chrome.extension.getBackgroundPage().console.log(aTab);
+  // chrome.tabs.sendMessage(aTab.id, { text: "report_back" },
+  //                         doStuffWithDOM);
 });
 
 // chrome.browserAction.onClicked.addListener(function(aTab) {

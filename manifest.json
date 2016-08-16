@@ -10,7 +10,7 @@
 
   "background": {
     "persistent": false,
-    "scripts": ["background.js"]
+    "scripts": ["pouchdb-5.4.5.js", "background.js"]
   },
 
   "content_scripts": [

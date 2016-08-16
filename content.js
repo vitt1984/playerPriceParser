@@ -1,7 +1,6 @@
 console.error('test content.js');
 
 // CONSTANTS
-
 let propertiesValues = {
   // skills
   'divine'            : 20,
@@ -87,6 +86,7 @@ let playerProperties = {
 let playerIdRegex = /playerId=([0-9]+)/g;
 let deadlineRegex = /Deadline:\s+([0-9]{2})-([0-9]{2})-([0-9]{4}) ([0-9]{2})\.([0-9]{2})/g;
 
+var transferSearchPage = /hattrick\.org\/World\/Transfers\/$/g
 var transferResultPage = /hattrick\.org\/World\/Transfers\/TransfersSearchResult\.aspx/g;
 
 // FUNCTIONS
@@ -149,11 +149,60 @@ function getPlayerInfo( transferPlayerInfo ) {
   return playerProps;
 }
 
+function setIndexFromValue( elementId, value, valueMapping ) {
+  let element = document.getElementById( elementId );
+  let optionsArray = Array.from(element.options);
+  let index = optionsArray.findIndex( ( option ) => {
+    if ( valueMapping ) {
+      console.error('translating value', option.text.toLowerCase(), valueMapping[option.text.toLowerCase()], value);
+      return valueMapping[option.text.toLowerCase()] === value;
+    } else if ( isNaN(option.text) ) {
+      console.error('lowercasing value', option.text.toLowerCase(), value);
+      return option.text.toLowerCase() === value;
+    } else {
+      console.error('value', Number(option.text), value);
+      return Number(option.text) === value;
+    }
+  });
+  element.selectedIndex = index;
+}
+
 // MAIN
 
-var db = new PouchDB('http://localhost:5984/hattrick');
+if ( transferSearchPage.exec(window.location.href) ) {
+  var searchesDb = new PouchDB('http://localhost:5984/hattrick_searches');
 
-if ( transferResultPage.exec(window.location.href) ) {
+  // get requested searches
+  searchesDb.allDocs({include_docs: true, limit: 1}).then( (searches) => {
+    let search = searches.rows[0].doc;
+    console.error('doing search', search);
+    searchesDb.remove( search._id, search._rev );
+
+    delete search._id;
+    delete search._rev;
+
+    setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlAgeMin', search.age.min);
+    setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlAgeMax', search.age.max);
+
+    let counter = 1;
+    for ( property in search )  {
+      if (property !== 'age') {
+        console.error('setting', property, search[property]);
+        setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlSkill'.concat(counter), property);
+        console.error('setting min', property, search[property]);
+        setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlSkill'.concat(counter, 'Min'), search[property].min, propertiesValues);
+        console.error('setting max', property, search[property]);
+        setIndexFromValue('ctl00_ctl00_CPContent_CPMain_ddlSkill'.concat(counter, 'Max'), search[property].max, propertiesValues);
+      }
+    }
+    document.getElementById('ctl00_ctl00_CPContent_CPMain_butSearch').click();
+
+  });
+
+} else if ( transferResultPage.exec(window.location.href) ) {
+
+  var db = new PouchDB('http://localhost:5984/hattrick');
+
   console.error('gathering player info');
 
   var transferPlayerInfoList = document.getElementsByClassName('transferPlayerInfo');
@@ -183,25 +232,30 @@ if ( transferResultPage.exec(window.location.href) ) {
     nextPageLink = document.getElementById('ctl00_ctl00_CPContent_CPMain_ucPager2_next');
     if ( nextPageLink && !nextPageLink.hasAttribute('disabled') ) {
       nextPageLink.click();
+    } else {
+      transferSearchLink = document.getElementById('ctl00_ctl00_CPContent_ucSubMenu_A4');
+      if ( transferSearchLink ) {
+        transferSearchLink.click();
+      }
     }
   });
 
   // EXAMPLE QUERY
 
-  var passingFunction = function(doc) {
-    emit(doc.passing);
-  }
+  // var passingFunction = function(doc) {
+  //   emit(doc.passing);
+  // }
 
-  db.query(passingFunction, {
-    startkey     : 5,
-    endkey       : 7,
-    limit        : 5,
-    include_docs : true
-  }).then(function (result) {
-    console.error('QUERY_RESULT:', result);
-  }).catch(function (err) {
-    console.error('EERRRER:', err);
-  });
+  // db.query(passingFunction, {
+  //   startkey     : 5,
+  //   endkey       : 7,
+  //   limit        : 5,
+  //   include_docs : true
+  // }).then(function (result) {
+  //   console.error('QUERY_RESULT:', result);
+  // }).catch(function (err) {
+  //   console.error('EERRRER:', err);
+  // });
 
 }
 
