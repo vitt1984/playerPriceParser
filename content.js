@@ -84,10 +84,13 @@ let playerProperties = {
   }
 };
 let playerIdRegex = /playerId=([0-9]+)/g;
+let playerAgeRegex = /Age:\s+([0-9]{2}) years \(([0-9]{2}) days\)/g;
 let deadlineRegex = /Deadline:\s+([0-9]{2})-([0-9]{2})-([0-9]{4}) ([0-9]{2})\.([0-9]{2})/g;
 
 var transferSearchPage = /hattrick\.org\/World\/Transfers\/$/g
 var transferResultPage = /hattrick\.org\/World\/Transfers\/TransfersSearchResult\.aspx/g;
+
+let hattrickDaysInYear = 112; // hattrick year in days
 
 // FUNCTIONS
 
@@ -103,6 +106,20 @@ function getPlayerId( transferPlayerInfo ) {
   playerIdRegex.exec( transferPlayerInfo.outerHTML );
 
   return playerid;
+}
+
+function getPlayerAge( transferPlayerInfo ) {
+
+  let ageMatch = playerAgeRegex.exec( transferPlayerInfo.outerText );
+  var age = undefined;
+  if ( ageMatch ) {
+    age = +(Number(ageMatch[1]) + Number(ageMatch[2])/hattrickDaysInYear).toFixed(2);
+  }
+  // http://stackoverflow.com/questions/3891641/regex-test-only-works-every-other-time
+  // due to a bug, we call the regex a second time
+  playerAgeRegex.exec( transferPlayerInfo.outerText );
+
+  return age;
 }
 
 function getDeadline( transferPlayerInfo ) {
@@ -219,6 +236,7 @@ if ( transferSearchPage.exec(window.location.href) ) {
     let player = {
       //'age'     : getPlayerAge( transferPlayerInfo ),
       '_id': getPlayerId( transferPlayerInfo ),
+      'age': getPlayerAge( transferPlayerInfo ),
       'deadline': getDeadline( transferPlayerInfo ),
       'finalPrice': undefined
     };
@@ -239,7 +257,7 @@ if ( transferSearchPage.exec(window.location.href) ) {
     } else {
       transferSearchLink = document.getElementById('ctl00_ctl00_CPContent_ucSubMenu_A4');
       if ( transferSearchLink ) {
-        transferSearchLink.click();
+        //transferSearchLink.click();
       }
     }
   });
