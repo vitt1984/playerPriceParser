@@ -94,45 +94,44 @@ let hattrickDaysInYear = 112; // hattrick year in days
 
 // FUNCTIONS
 
+function execRegex ( regex, text ){
+  let result = regex.exec( text);
+  // http://stackoverflow.com/questions/3891641/regex-test-only-works-every-other-time
+  // due to a bug, we call the regex a second time
+  regex.exec( text );
+  return result;
+}
+
 function getPlayerId( transferPlayerInfo ) {
 
-  let playerIdMatch = playerIdRegex.exec( transferPlayerInfo.outerHTML );
+  let playerIdMatch = execRegex( playerIdRegex, transferPlayerInfo.outerHTML );
   var playerid = undefined;
   if ( playerIdMatch ) {
     playerid = playerIdMatch[1];
   }
-  // http://stackoverflow.com/questions/3891641/regex-test-only-works-every-other-time
-  // due to a bug, we call the regex a second time
-  playerIdRegex.exec( transferPlayerInfo.outerHTML );
 
   return playerid;
 }
 
 function getPlayerAge( transferPlayerInfo ) {
 
-  let ageMatch = playerAgeRegex.exec( transferPlayerInfo.outerText );
+  let ageMatch = execRegex( playerAgeRegex, transferPlayerInfo.outerText );
   var age = undefined;
   if ( ageMatch ) {
     age = +(Number(ageMatch[1]) + Number(ageMatch[2])/hattrickDaysInYear).toFixed(2);
   }
-  // http://stackoverflow.com/questions/3891641/regex-test-only-works-every-other-time
-  // due to a bug, we call the regex a second time
-  playerAgeRegex.exec( transferPlayerInfo.outerText );
 
   return age;
 }
 
 function getDeadline( transferPlayerInfo ) {
 
-  let deadlineMatch = deadlineRegex.exec( transferPlayerInfo.outerText );
+  let deadlineMatch = execRegex( deadlineRegex, transferPlayerInfo.outerText );
   var deadline = undefined;
   if ( deadlineMatch ) {
     deadline = new Date (deadlineMatch[3].concat('-', deadlineMatch[2], '-', deadlineMatch[1], 'T',
                          deadlineMatch[4], ':', deadlineMatch[5], ':00'));
   }
-  // http://stackoverflow.com/questions/3891641/regex-test-only-works-every-other-time
-  // due to a bug, we call the regex a second time
-  deadlineRegex.exec( transferPlayerInfo.outerText );
 
   return deadline;
 }
@@ -141,7 +140,7 @@ function getPlayerInfo( transferPlayerInfo ) {
   let playerProps = {};
 
   for (var property in playerProperties) {
-    let matchingRegex = playerProperties[property].regex.exec( transferPlayerInfo.outerText );
+    let matchingRegex = execRegex( playerProperties[property].regex, transferPlayerInfo.outerText );
     if ( matchingRegex ) {
       if ( playerProperties[property].numeric ) {
         value = Number(matchingRegex[1].replace(/\s/g, ''));
@@ -158,9 +157,6 @@ function getPlayerInfo( transferPlayerInfo ) {
     } else {
       //console.error('missing', property);
     }
-    // http://stackoverflow.com/questions/3891641/regex-test-only-works-every-other-time
-    // due to a bug, we call the regex a second time
-    playerProperties[property].regex.exec( transferPlayerInfo.outerText );
   }
 
   return playerProps;
