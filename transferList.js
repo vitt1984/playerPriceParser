@@ -71,9 +71,9 @@ function execRegex ( regex, text ){
   return result;
 }
 
-function getPlayerId( transferPlayerInfo ) {
+function getPlayerId( source ) {
 
-  let playerIdMatch = execRegex( playerIdRegex, transferPlayerInfo.outerHTML );
+  let playerIdMatch = execRegex( playerIdRegex, source );
   var playerid = undefined;
   if ( playerIdMatch ) {
     playerid = playerIdMatch[1];
@@ -155,7 +155,7 @@ if ( transferResultPage.exec(window.location.href) ) {
 
     let player = {
       //'age'     : getPlayerAge( transferPlayerInfo ),
-      '_id': getPlayerId( transferPlayerInfo ),
+      '_id': getPlayerId( transferPlayerInfo.outerHTML ),
       'age': getPlayerAge( transferPlayerInfo ),
       'deadline': getDeadline( transferPlayerInfo ),
       'finalPrice': undefined
