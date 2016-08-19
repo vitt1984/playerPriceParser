@@ -138,66 +138,71 @@ function getPlayerInfo( transferPlayerInfo ) {
 
 // first check for players to add final price
 
-if ( transferResultPage.exec(window.location.href) ) {
+var stateDb = new PouchDB('http://localhost:5984/hattrick_state');
+stateDb.get('state').then( ( currentState ) => {
 
-  console.error('test transferList.js');
+  if ( currentState && currentState.state === 'TRANSFER_CHECK' && transferResultPage.exec(window.location.href) ) {
 
-  var db = new PouchDB('http://localhost:5984/hattrick');
+    console.error('test transferList.js');
 
-  console.error('gathering player info');
+    var db = new PouchDB('http://localhost:5984/hattrick');
 
-  var transferPlayerInfoList = document.getElementsByClassName('transferPlayerInfo');
-  var playerList = [];
+    console.error('gathering player info');
 
-  for ( index in transferPlayerInfoList ) {
-    let transferPlayerInfo = transferPlayerInfoList[index];
-    // console.error(transferPlayerInfo.outerText);
+    var transferPlayerInfoList = document.getElementsByClassName('transferPlayerInfo');
+    var playerList = [];
 
-    let player = {
-      //'age'     : getPlayerAge( transferPlayerInfo ),
-      '_id': getPlayerId( transferPlayerInfo.outerHTML ),
-      'age': getPlayerAge( transferPlayerInfo ),
-      'deadline': getDeadline( transferPlayerInfo ),
-      'finalPrice': undefined
-    };
+    for ( index in transferPlayerInfoList ) {
+      let transferPlayerInfo = transferPlayerInfoList[index];
+      // console.error(transferPlayerInfo.outerText);
 
-    if ( player.deadline ) {
-      Object.assign(player, getPlayerInfo( transferPlayerInfo ));
+      let player = {
+        //'age'     : getPlayerAge( transferPlayerInfo ),
+        '_id': getPlayerId( transferPlayerInfo.outerHTML ),
+        'age': getPlayerAge( transferPlayerInfo ),
+        'deadline': getDeadline( transferPlayerInfo ),
+        'finalPrice': undefined
+      };
 
-      playerList.push(player);
+      if ( player.deadline ) {
+        Object.assign(player, getPlayerInfo( transferPlayerInfo ));
 
-    }
-  }
+        playerList.push(player);
 
-  console.error(playerList);
-  db.bulkDocs(playerList).then( () => {
-    nextPageLink = document.getElementById('ctl00_ctl00_CPContent_CPMain_ucPager2_next');
-    if ( nextPageLink && !nextPageLink.hasAttribute('disabled') ) {
-      nextPageLink.click();
-    } else {
-      transferSearchLink = document.getElementById('ctl00_ctl00_CPContent_ucSubMenu_A4');
-      if ( transferSearchLink ) {
-        transferSearchLink.click();
       }
     }
-  });
 
-  // EXAMPLE QUERY
+    console.error(playerList);
+    db.bulkDocs(playerList).then( () => {
+      nextPageLink = document.getElementById('ctl00_ctl00_CPContent_CPMain_ucPager2_next');
+      if ( nextPageLink && !nextPageLink.hasAttribute('disabled') ) {
+        nextPageLink.click();
+      } else {
+        transferSearchLink = document.getElementById('ctl00_ctl00_CPContent_ucSubMenu_A4');
+        if ( transferSearchLink ) {
+          transferSearchLink.click();
+        }
+      }
+    });
 
-  // var passingFunction = function(doc) {
-  //   emit(doc.passing);
-  // }
+    // EXAMPLE QUERY
 
-  // db.query(passingFunction, {
-  //   startkey     : 5,
-  //   endkey       : 7,
-  //   limit        : 5,
-  //   include_docs : true
-  // }).then(function (result) {
-  //   console.error('QUERY_RESULT:', result);
-  // }).catch(function (err) {
-  //   console.error('EERRRER:', err);
-  // });
+    // var passingFunction = function(doc) {
+    //   emit(doc.passing);
+    // }
 
-}
+    // db.query(passingFunction, {
+    //   startkey     : 5,
+    //   endkey       : 7,
+    //   limit        : 5,
+    //   include_docs : true
+    // }).then(function (result) {
+    //   console.error('QUERY_RESULT:', result);
+    // }).catch(function (err) {
+    //   console.error('EERRRER:', err);
+    // });
 
+  }
+}).catch( () => {
+  console.warn('state is not set');
+});
