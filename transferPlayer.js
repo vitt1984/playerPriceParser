@@ -59,14 +59,14 @@ stateDb.get('state').then( ( currentState ) => {
       priceUpdatePromise.then( () => {
         getNoFinalPricePlayer().then( (nextPlayer) => {
           console.error('nextPlayer', nextPlayer);
-          //if ( !nextPlayer ) {
+          if ( !nextPlayer ) {
             currentState.state = 'TRANSFER_CHECK';
             stateDb.put(currentState);
-            window.location.href = 'https://www91.hattrick.org/World/Transfers/';
-          // } else {
-          //   console.error('navigating to next player');
-          //   window.location.href = 'https://www91.hattrick.org/Club/Transfers/TransfersPlayer.aspx?playerId='.concat(nextPlayer._id, '&browseIds=');
-          // }
+            delayedURLNavigation( 'https://www91.hattrick.org/World/Transfers/' );
+          } else {
+            console.error('navigating to next player');
+            delayedURLNavigation( 'https://www91.hattrick.org/Club/Transfers/TransfersPlayer.aspx?playerId='.concat(nextPlayer._id, '&browseIds=') );
+          }
         });
       });
     });

@@ -54,6 +54,21 @@ function setIndexFromValue( elementId, value, valueMapping ) {
   element.selectedIndex = index;
 }
 
+// from: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function delayedURLNavigation( url ) {
+  let interval = getRandomInt(3000, 6000);
+  console.error('will navigate to', url, 'after', interval);
+  setTimeout( () => {
+    window.location.href = url;
+  }, interval );
+}
+
 // MAIN
 
 // first check for players to add final price
