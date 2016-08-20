@@ -13,9 +13,9 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
         if ( !player ) {
           currentState.state = 'TRANSFERS_CHECK';
           stateDb.put(currentState);
-          delayedURLNavigation( 'https://www91.hattrick.org/World/Transfers/' );
+          delayedNavigation( () => { window.location.href = 'https://www91.hattrick.org/World/Transfers/'; });
         } else {
-          delayedURLNavigation( 'https://www91.hattrick.org/Club/Transfers/TransfersPlayer.aspx?playerId='.concat(player._id, '&browseIds=') ); 
+          delayedNavigation( () => { window.location.href = 'https://www91.hattrick.org/Club/Transfers/TransfersPlayer.aspx?playerId='.concat(player._id, '&browseIds='); });
         }
       });
     }

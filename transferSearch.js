@@ -61,12 +61,12 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function delayedURLNavigation( url ) {
+function delayedNavigation( navigationAction ) {
   let interval = getRandomInt(3000, 6000);
   console.error('will navigate to', url, 'after', interval);
   setTimeout( () => {
-    window.location.href = url;
-  }, interval );
+    navigationAction();
+  }, interval);
 }
 
 // MAIN
@@ -107,7 +107,7 @@ stateDb.get('state').then( ( currentState ) => {
           }
           counter = counter + 1;
         }
-        document.getElementById('ctl00_ctl00_CPContent_CPMain_butSearch').click();
+        delayedNavigation( () => { document.getElementById('ctl00_ctl00_CPContent_CPMain_butSearch').click(); });
       } else {
         console.error('no search to perform');
         currentState.state = 'INACTIVE';

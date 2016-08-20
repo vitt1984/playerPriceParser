@@ -176,11 +176,11 @@ stateDb.get('state').then( ( currentState ) => {
     db.bulkDocs(playerList).then( () => {
       nextPageLink = document.getElementById('ctl00_ctl00_CPContent_CPMain_ucPager2_next');
       if ( nextPageLink && !nextPageLink.hasAttribute('disabled') ) {
-        nextPageLink.click();
+        delayedNavigation( () => { nextPageLink.click(); });
       } else {
         transferSearchLink = document.getElementById('ctl00_ctl00_CPContent_ucSubMenu_A4');
         if ( transferSearchLink ) {
-          transferSearchLink.click();
+          delayedNavigation( () => { transferSearchLink.click(); });
         }
       }
     });
