@@ -11,7 +11,7 @@ chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
       getNoFinalPricePlayer().then( ( player ) => {
         console.error('testtest', player);
         if ( !player ) {
-          currentState.state = 'TRANSFERS_CHECK';
+          currentState.state = 'TRANSFER_CHECK';
           stateDb.put(currentState);
           delayedNavigation( () => { window.location.href = 'https://www91.hattrick.org/World/Transfers/'; });
         } else {

@@ -63,7 +63,7 @@ function getRandomInt(min, max) {
 
 function delayedNavigation( navigationAction ) {
   let interval = getRandomInt(3000, 6000);
-  console.error('will navigate to', url, 'after', interval);
+  console.error('will navigate after', interval);
   setTimeout( () => {
     navigationAction();
   }, interval);

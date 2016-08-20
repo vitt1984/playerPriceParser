@@ -17,38 +17,39 @@ chrome.browserAction.onClicked.addListener( (aTab) => {
 
   var searchesDb = new PouchDB('http://localhost:5984/hattrick_searches');
 
-  searchesDb.destroy().then() {
+  searchesDb.destroy().then( () => {
+    searchesDb = new PouchDB('http://localhost:5984/hattrick_searches');
 
-    var searches = [ 
-      {defending: {min: 11, max: 11}, passing: {max: 5}, age: {min: 20, max: 25}},
-      {defending: {min: 11, max: 11}, passing: {min: 6, max: 6}, age: {min: 20, max: 25}},
-      {defending: {min: 11, max: 11}, passing: {min: 7, max: 7}, age: {min: 20, max: 25}},
-      {defending: {min: 11, max: 11}, passing: {min: 8, max: 8}, age: {min: 20, max: 25}},
-      {defending: {min: 11, max: 11}, passing: {min: 9, max: 15}, age: {min: 21, max: 26}},
-      {defending: {min: 12, max: 12}, passing: {max: 5}, age: {min: 20, max: 25}},
-      {defending: {min: 12, max: 12}, passing: {min: 6, max: 6}, age: {min: 20, max: 25}},
-      {defending: {min: 12, max: 12}, passing: {min: 7, max: 7}, age: {min: 20, max: 25}},
-      {defending: {min: 12, max: 12}, passing: {min: 8, max: 8}, age: {min: 20, max: 25}},
-      {defending: {min: 12, max: 12}, passing: {min: 9, max: 15}, age: {min: 21, max: 26}},
-      {defending: {min: 13, max: 13}, passing: {max: 5}, age: {min: 20, max: 25}},
-      {defending: {min: 13, max: 13}, passing: {min: 6, max: 6}, age: {min: 20, max: 25}},
-      {defending: {min: 13, max: 13}, passing: {min: 7, max: 7}, age: {min: 20, max: 25}},
-      {defending: {min: 13, max: 13}, passing: {min: 8, max: 8}, age: {min: 20, max: 25}},
-      {defending: {min: 13, max: 13}, passing: {min: 9, max: 15}, age: {min: 21, max: 26}},
-      {defending: {min: 14, max: 14}, passing: {max: 5}, age: {min: 20, max: 25}},
-      {defending: {min: 14, max: 14}, passing: {min: 6, max: 6}, age: {min: 20, max: 25}},
-      {defending: {min: 14, max: 14}, passing: {min: 7, max: 7}, age: {min: 20, max: 25}},
-      {defending: {min: 14, max: 14}, passing: {min: 8, max: 8}, age: {min: 20, max: 25}},
+    var searches = [
+      // {defending: {min: 11, max: 11}, passing: {max: 5}, age: {min: 20, max: 25}},
+      // {defending: {min: 11, max: 11}, passing: {min: 6, max: 6}, age: {min: 20, max: 25}},
+      // {defending: {min: 11, max: 11}, passing: {min: 7, max: 7}, age: {min: 20, max: 25}},
+      // {defending: {min: 11, max: 11}, passing: {min: 8, max: 8}, age: {min: 20, max: 25}},
+      // {defending: {min: 11, max: 11}, passing: {min: 9, max: 15}, age: {min: 21, max: 26}},
+      // {defending: {min: 12, max: 12}, passing: {max: 5}, age: {min: 20, max: 25}},
+      // {defending: {min: 12, max: 12}, passing: {min: 6, max: 6}, age: {min: 20, max: 25}},
+      // {defending: {min: 12, max: 12}, passing: {min: 7, max: 7}, age: {min: 20, max: 25}},
+      // {defending: {min: 12, max: 12}, passing: {min: 8, max: 8}, age: {min: 20, max: 25}},
+      // {defending: {min: 12, max: 12}, passing: {min: 9, max: 15}, age: {min: 21, max: 26}},
+      // {defending: {min: 13, max: 13}, passing: {max: 5}, age: {min: 20, max: 25}},
+      // {defending: {min: 13, max: 13}, passing: {min: 6, max: 6}, age: {min: 20, max: 25}},
+      // {defending: {min: 13, max: 13}, passing: {min: 7, max: 7}, age: {min: 20, max: 25}},
+      // {defending: {min: 13, max: 13}, passing: {min: 8, max: 8}, age: {min: 20, max: 25}},
+      // {defending: {min: 13, max: 13}, passing: {min: 9, max: 15}, age: {min: 21, max: 26}},
+      // {defending: {min: 14, max: 14}, passing: {max: 5}, age: {min: 20, max: 25}},
+      // {defending: {min: 14, max: 14}, passing: {min: 6, max: 6}, age: {min: 20, max: 25}},
+      // {defending: {min: 14, max: 14}, passing: {min: 7, max: 7}, age: {min: 20, max: 25}},
+      // {defending: {min: 14, max: 14}, passing: {min: 8, max: 8}, age: {min: 20, max: 25}},
       {defending: {min: 14, max: 14}, passing: {min: 9, max: 15}, age: {min: 21, max: 26}},
-    ]
+    ];
 
     var promises = [];
 
     var id = 0;
-    for (var search in searches) {
-      search._id = id;
+    for (var index in searches) {
+      searches[index]['_id'] = String(id);
       id = id + 1;
-      promises.push( searchesDb.put(search) );
+      promises.push( searchesDb.put(searches[index]) );
     }
 
     var stateDb = new PouchDB('http://localhost:5984/hattrick_state');
@@ -73,7 +74,7 @@ chrome.browserAction.onClicked.addListener( (aTab) => {
       });
     });
 
-  }
+  });
 
   //chrome.tabs.create({'url': 'http://chilloutandwatchsomecatgifs.com/', 'active': true});
 
