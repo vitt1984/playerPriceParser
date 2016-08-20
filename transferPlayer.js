@@ -20,6 +20,12 @@ function getNoFinalPricePlayer() {
   });
 }
 
+function createPlayerRelatedView() {
+
+  
+
+}
+
 var stateDb = new PouchDB('http://localhost:5984/hattrick_state');
 
 stateDb.get('state').then( ( currentState ) => {
@@ -102,39 +108,6 @@ stateDb.get('state').then( ( currentState ) => {
 
 
 
-
-// function createPlayerWithoutFinalPriceView() {
-
-//   var playersDb = new PouchDB('http://localhost:5984/hattrick');
-
-//   var noFinalPriceDoc = {
-//     _id: '_design/no_final_price',
-//     views: {
-//       no_final_price: {
-//         map: function (doc) {
-//           if ( doc.finalPrice === undefined ) {
-//             var now = new Date();
-//             var deadline = new Date( doc.deadline );
-//             if ( ((now - deadline)/1000) > 300 ) {
-//               // if deadline was at least 5 minutes ago
-//               emit(doc._id);
-//             }
-//           }
-//         }.toString()
-//       }
-//     }
-//   };
-
-//   return playersDb.put(noFinalPriceDoc).then( ()=>{
-//     console.error('created view');
-//   } ).catch(function (err) {
-//     if (err.name !== 'conflict') {
-//       throw err;
-//     }
-//     // ignore if doc already exists
-//   });
-
-// }
 
 // function updateWithFinalPrice() {
 
