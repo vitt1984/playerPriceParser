@@ -49,12 +49,14 @@ stateDb.get('state').then( ( currentState ) => {
           priceMatches = execRegex(playerProperties.price.regex, table);
           player['finalPrice'] = playerProperties.price.modifier( Number(priceMatches[1].replace(/\s/g, ''))) ;
           console.error('player after update', player);
-        } else {
-          player['finalPrice'] = 'UNSOLD';
-          console.error('player was not sold');
         }
-        priceUpdatePromise = playersDb.put(player);
-      };
+      }
+      if ( player.finalPrice === undefined ) {
+        player['finalPrice'] = 'UNSOLD';
+        console.error('player was not sold');
+      }
+
+      priceUpdatePromise = playersDb.put(player);
 
       priceUpdatePromise.then( () => {
         getNoFinalPricePlayer().then( (nextPlayer) => {
