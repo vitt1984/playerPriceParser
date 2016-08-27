@@ -3,58 +3,70 @@
 let playerProperties = {
   'experience' : {
     regex: /Has ([a-z\s]+) experience/g,
+    skill: false,
     numeric: false
   },
   'stamina'    : {
     regex: /Stamina:\s*([a-z\s]+\s)/g,
+    skill: true,
     numeric: false
   },
   'playmaking' : {
     regex: /Playmaking:\s*([a-z\s]+\s)/g,
+    skill: true,
     numeric: false
   },
   'winger'     : {
     regex: /Winger:\s*([a-z\s]+\s)/g,
+    skill: true,
     numeric: false
   },
   'scoring'    : {
     regex: /Scoring:\s*([a-z\s]+\s)/g,
+    skill: true,
     numeric: false
   },
   'keeper'     : {
     regex: /Keeper:\s*([a-z\s]+\s)/g,
+    skill: true,
     numeric: false
   },
   'passing'    : {
     regex: /Passing:\s*([a-z\s]+\s)/g,
+    skill: true,
     numeric: false
   },
   'defending'  : {
     regex: /Defending:\s*([a-z\s]+\s)/g,
+    skill: true,
     numeric: false
   },
   'set pieces' : {
     regex: /Set pieces:\s*([a-z\s]+\s)/g,
+    skill: true,
     numeric: false
   },
   'specialty'  : {
     regex: /Specialty:\s*([a-zA-Z\s]+\s)/g,
+    skill: false,
     numeric: false
   },
   'price'      : {
     regex: /([0-9\s]+)\sRupees/g,
     numeric: true,
+    skill: false,
     modifier: ( value ) => {
-      return value * 0.25; // Rupees to euro
+      return value * 0.025; // Rupees to euro
     }
   },
   'tsi'        : {
     regex: /TSI:\s+([0-9\s]+)/g,
+    skill: false,
     numeric: true
   }
 };
 let playerIdRegex = /playerId=([0-9]+)/g;
-let playerAgeRegex = /Age:\s+([0-9]{2}) years \(([0-9]{2}) days\)/g;
+let playerAgeRegex = /Age:\s+([0-9]{2}) years \(([0-9]{1,3}) days?\)/g;
 let deadlineRegex = /Deadline:\s+([0-9]{2})-([0-9]{2})-([0-9]{4}) ([0-9]{2})\.([0-9]{2})/g;
 
 var transferResultPage = /hattrick\.org\/World\/Transfers\/TransfersSearchResult\.aspx/g;
@@ -87,7 +99,7 @@ function getPlayerAge( transferPlayerInfo ) {
   let ageMatch = execRegex( playerAgeRegex, transferPlayerInfo.outerText );
   var age = undefined;
   if ( ageMatch ) {
-    age = +(Number(ageMatch[1]) + Number(ageMatch[2])/hattrickDaysInYear).toFixed(2);
+    age = Number(ageMatch[1]);
   }
 
   return age;
@@ -134,6 +146,39 @@ function getPlayerInfo( transferPlayerInfo ) {
   return playerProps;
 }
 
+var skillsView = {
+  playmaking: ['age', 'playmaking', 'passing', 'defending', 'winger'],
+  defending : ['age', 'defending', 'passing', 'playmaking', 'winger'],
+};
+
+function getSkillsKey( player ) {
+  var sortedSkills = [];
+  for (property in player) {
+    if ( playerProperties[property] !== undefined && playerProperties[property].skill ) {
+      sortedSkills.push({ skill: property, value: player[property] });
+    }
+  }
+
+  sortedSkills.sort( ( firstSkill, secondSkill ) => {
+    return Number(firstSkill.value) < Number(secondSkill.value);
+  });
+
+  var keys = [];
+
+  for (var index in sortedSkills) {
+    var skill = sortedSkills[index].skill;
+    var keySkills = skillsView[skill];
+    if (keySkills !== undefined) {
+      for (var index in keySkills) {
+        var key = keySkills[index];
+        keys.push(key);
+      }
+      return keys;
+    }
+  }
+  return undefined;
+}
+
 // MAIN
 
 // first check for players to add final price
@@ -145,12 +190,14 @@ stateDb.get('state').then( ( currentState ) => {
 
     console.error('test transferList.js');
 
-    var db = new PouchDB('http://localhost:5984/hattrick');
+    var playersDb = new PouchDB('http://localhost:5984/hattrick');
 
     console.error('gathering player info');
 
     var transferPlayerInfoList = document.getElementsByClassName('transferPlayerInfo');
     var playerList = [];
+
+    var promises = [];
 
     for ( index in transferPlayerInfoList ) {
       let transferPlayerInfo = transferPlayerInfoList[index];
@@ -167,22 +214,48 @@ stateDb.get('state').then( ( currentState ) => {
       if ( player.deadline ) {
         Object.assign(player, getPlayerInfo( transferPlayerInfo ));
 
-        playerList.push(player);
+        var varSkills = getSkillsKey(player);
+        console.error('varSkills', varSkills);
+        var varSkillsKey = varSkills.map( (key) => {
+          return player[key];
+        });
+        console.error('varSkillsKey', varSkillsKey);
+
+        let promise = playersDb.query('skillsView/'.concat(varSkills[1]), {
+          key: varSkillsKey, group: true
+        }).then(function (result) {
+          if ( result.rows.length > 0 ) {
+            let averagePrice = result.rows[0].value.sum / result.rows[0].value.count;
+            player['priceForProfit2days'] = averagePrice * 0.85 - 100000;
+            player['priceForProfit5days'] = averagePrice * 0.86 - 100000;
+            player['priceExamplesCount'] = result.rows[0].value.count;
+          } else {
+            console.error('could not determine best price');
+          }
+          console.error('result', result);
+          playerList.push(player);
+        }).catch(function (err) {
+          console.error('EERRRER:', err);
+        });
+
+        promises.push(promise);
+
 
       }
     }
 
-    console.error(playerList);
-    db.bulkDocs(playerList).then( () => {
-      nextPageLink = document.getElementById('ctl00_ctl00_CPContent_CPMain_ucPager2_next');
-      if ( nextPageLink && !nextPageLink.hasAttribute('disabled') ) {
-        delayedNavigation( () => { nextPageLink.click(); });
-      } else {
-        transferSearchLink = document.getElementById('ctl00_ctl00_CPContent_ucSubMenu_A4');
-        if ( transferSearchLink ) {
-          delayedNavigation( () => { transferSearchLink.click(); });
+    Promise.all( promises ).then( () => {
+      playersDb.bulkDocs(playerList).then( () => {
+        nextPageLink = document.getElementById('ctl00_ctl00_CPContent_CPMain_ucPager2_next');
+        if ( nextPageLink && !nextPageLink.hasAttribute('disabled') ) {
+          delayedNavigation( () => { nextPageLink.click(); });
+        } else {
+          transferSearchLink = document.getElementById('ctl00_ctl00_CPContent_ucSubMenu_A4');
+          if ( transferSearchLink ) {
+            delayedNavigation( () => { transferSearchLink.click(); });
+          }
         }
-      }
+      });
     });
 
     // EXAMPLE QUERY
