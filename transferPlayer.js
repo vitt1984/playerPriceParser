@@ -6,7 +6,11 @@ function getNoFinalPricePlayer() {
 
   var playersDb = new PouchDB('http://localhost:5984/hattrick');
 
+  var now = new Date();
+  var fiveMinutesAgo = new Date(now.valueOf() - 5*60*1000);
+
   return playersDb.query('no_final_price', {
+    endkey       : fiveMinutesAgo.toISOString(),
     limit        : 1,
     include_docs : true
   }).then(function (result) {
@@ -18,12 +22,6 @@ function getNoFinalPricePlayer() {
   }).catch(function (err) {
     console.error('EERRRER:', err);
   });
-}
-
-function createPlayerRelatedView() {
-
-  
-
 }
 
 var stateDb = new PouchDB('http://localhost:5984/hattrick_state');
