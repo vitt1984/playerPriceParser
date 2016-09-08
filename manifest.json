@@ -16,7 +16,7 @@
   "content_scripts": [
     {
       "matches": ["https://*.hattrick.org/*"],
-      "js": ["pouchdb-5.4.5.js", "constants.js", "transferSearch.js", "transferList.js", "transferPlayer.js", "windowManager.js"]
+      "js": ["pouchdb-5.4.5.js", "constants.js", "transferSearch.js", "transferList.js", "transferPlayer.js", "transferBid.js", "windowManager.js"]
     }
   ],
   
