@@ -80,6 +80,7 @@ function createSkillsView() {
 
 
 // http://stackoverflow.com/questions/5731193/how-to-format-numbers-using-javascript
+// TODO shared function
 function formatNumber(number) {
   number = number.toFixed(2) + '';
   let x = number.split('.');
@@ -93,8 +94,7 @@ function formatNumber(number) {
 };
 
 
-var review = true;
-
+var review = false;
 
 if ( review ) {
 
