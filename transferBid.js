@@ -1,6 +1,5 @@
 var transferBidPage = /hattrick\.org\/Club\/Players\/Player\.aspx/g;
 
-
 // TODO shared function
 function formatNumber(number) {
   number = number.toFixed(2) + '';
@@ -13,8 +12,6 @@ function formatNumber(number) {
   }
   return x1 + x2;
 };
-
-
 
 var stateDb = new PouchDB('http://localhost:5984/hattrick_state');
 
@@ -86,9 +83,11 @@ stateDb.get('state').then( ( currentState ) => {
       secondBoxBody.innerHTML = secondBoxBody.innerHTML.concat('<br>', playerLinksHtml);
 
     }).catch(function (err) {
-      console.error('err', err);
+      console.error('Error while trying to retrieve similarly priced players', err);
     });
 
   }
 
+}).catch( () => {
+  console.warn('state is not set');
 });
