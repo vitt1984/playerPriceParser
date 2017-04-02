@@ -137,9 +137,7 @@ function getPlayerInfo( transferPlayerInfo ) {
         value = playerProperties[property].modifier( value );
       }
       playerProps[property] = value;
-      //console.error(property, matchingRegex[1]);
     } else {
-      //console.error('missing', property);
     }
   }
 
@@ -181,18 +179,14 @@ function getSkillsKey( player ) {
 
 // MAIN
 
-// first check for players to add final price
-
 var stateDb = new PouchDB('http://localhost:5984/hattrick_state');
 stateDb.get('state').then( ( currentState ) => {
 
   if ( currentState && currentState.state === 'TRANSFER_CHECK' && transferResultPage.exec(window.location.href) ) {
 
-    console.error('test transferList.js');
+    console.info('gathering player info');
 
     var playersDb = new PouchDB('http://localhost:5984/hattrick');
-
-    console.error('gathering player info');
 
     var transferPlayerInfoList = document.getElementsByClassName('transferPlayerInfo');
     var playerList = [];
@@ -201,10 +195,8 @@ stateDb.get('state').then( ( currentState ) => {
 
     for ( index in transferPlayerInfoList ) {
       let transferPlayerInfo = transferPlayerInfoList[index];
-      // console.error(transferPlayerInfo.outerText);
 
       let player = {
-        //'age'     : getPlayerAge( transferPlayerInfo ),
         '_id': getPlayerId( transferPlayerInfo.outerHTML ),
         'age': getPlayerAge( transferPlayerInfo ),
         'deadline': getDeadline( transferPlayerInfo ),
@@ -215,11 +207,9 @@ stateDb.get('state').then( ( currentState ) => {
         Object.assign(player, getPlayerInfo( transferPlayerInfo ));
 
         var varSkills = getSkillsKey(player);
-        console.error('varSkills', varSkills);
         var varSkillsKey = varSkills.map( (key) => {
           return player[key];
         });
-        console.error('varSkillsKey', varSkillsKey);
 
         let promise = playersDb.query('skillsView/'.concat(varSkills[1]), {
           key: varSkillsKey, group: true
@@ -230,17 +220,15 @@ stateDb.get('state').then( ( currentState ) => {
             player['priceForProfit5days'] = averagePrice * 0.86 - 100000;
             player['priceExamplesCount'] = result.rows[0].value.count;
           } else {
-            console.error('could not determine best price');
+            console.warn('could not determine best price');
           }
-          console.error('result', result);
+          console.info('result', result);
           playerList.push(player);
         }).catch(function (err) {
-          console.error('EERRRER:', err);
+          console.error('Query for skillsview failed with error:', err);
         });
 
         promises.push(promise);
-
-
       }
     }
 
@@ -257,23 +245,6 @@ stateDb.get('state').then( ( currentState ) => {
         }
       });
     });
-
-    // EXAMPLE QUERY
-
-    // var passingFunction = function(doc) {
-    //   emit(doc.passing);
-    // }
-
-    // db.query(passingFunction, {
-    //   startkey     : 5,
-    //   endkey       : 7,
-    //   limit        : 5,
-    //   include_docs : true
-    // }).then(function (result) {
-    //   console.error('QUERY_RESULT:', result);
-    // }).catch(function (err) {
-    //   console.error('EERRRER:', err);
-    // });
 
   }
 }).catch( () => {

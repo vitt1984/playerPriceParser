@@ -14,13 +14,13 @@ function getNoFinalPricePlayer() {
     limit        : 1,
     include_docs : true
   }).then(function (result) {
-    console.error('players without final price', result);
+    console.error('Player without final price', result);
 
     player = result.rows[0].doc;
     return player;
 
   }).catch(function (err) {
-    console.error('EERRRER:', err);
+    console.error('Query to retrieve players without a final price failed:', err);
   });
 }
 
@@ -80,48 +80,3 @@ stateDb.get('state').then( ( currentState ) => {
 }).catch( () => {
   console.warn('state is not set');
 });
-
-/* Listen for messages */
-//chrome.runtime.onMessage.addListener(function(msg, sender, sendResponse) {
-    /* If the received message has the expected format... */
-  //console.error('listener called', sendResponse.toString());
-  //sendResponse(document.getElementById('firstHeading').innerHTML);
-
-  // sendResponse(player);
-//});
-
-//   createPlayerWithoutFinalPriceView().then( () => {
-//     var playersDb = new PouchDB('http://localhost:5984/hattrick');
-//     playersDb.query('no_final_price', {
-//       limit        : 1,
-//       include_docs : true
-//     }).then(function (result) {
-//       console.error('players without final price', result);
-//       if ( result.total_rows > 0) {
-
-
-
-//       } else 
-
-
-
-
-
-// function updateWithFinalPrice() {
-
-//   var playersDb = new PouchDB('http://localhost:5984/hattrick');
-
-//   playersDb.query('no_final_price', {
-//     limit        : 1,
-//     include_docs : true
-//   }).then(function (result) {
-//     console.error('players without final price', result);
-
-//     player = result.rows[0].doc;
-//     window.location.href = 'https://www91.hattrick.org/Club/Transfers/TransfersPlayer.aspx?playerId='.concat(player._id, '&browseIds=');
-
-//   }).catch(function (err) {
-//     console.error('EERRRER:', err);
-//   });
-
-// }
