@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Hattrick",
+  "name": "Hattrick Player Parser",
   "version": "1.0",
 
   "background": {
@@ -11,7 +11,8 @@
   "content_scripts": [
     {
       "matches": ["https://*.hattrick.org/*"],
-      "js": ["pouchdb-5.4.5.js", "constants.js", "transferSearch.js", "transferList.js", "transferPlayer.js", "transferBid.js", "windowManager.js"]
+      "js": ["pouchdb-5.4.5.js", "common.js", "hattrick_common.js","constants.js",
+             "transferSearch.js", "transferList.js", "transferPlayer.js", "transferBid.js", "windowManager.js"]
     }
   ],
   

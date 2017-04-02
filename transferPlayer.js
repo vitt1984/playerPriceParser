@@ -1,4 +1,3 @@
-
 var transferPlayerPage = /hattrick\.org\/Club\/Transfers\/TransfersPlayer\.aspx/g;
 var transferDateRegex = /([0-9]{2})-([0-9]{2})-([0-9]{4})/g;
 
@@ -30,7 +29,7 @@ stateDb.get('state').then( ( currentState ) => {
 
   if ( currentState && currentState.state === 'PLAYERS_CHECK' && transferPlayerPage.exec(window.location.href)) {
 
-    console.error('test transferPlayer.js');
+    console.info('Getting player info...');
 
     var playerId = getPlayerId(window.location.href);
 
@@ -38,7 +37,7 @@ stateDb.get('state').then( ( currentState ) => {
 
     playersDb.get(playerId).then( ( player ) => {
 
-      console.error('player', player);
+      console.info('Player', player);
 
       // check if the date is the same as the deadline
 

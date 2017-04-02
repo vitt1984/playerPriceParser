@@ -1,23 +1,10 @@
 var transferBidPage = /hattrick\.org\/Club\/Players\/Player\.aspx/g;
 
-// TODO shared function
-function formatNumber(number) {
-  number = number.toFixed(2) + '';
-  let x = number.split('.');
-  let x1 = x[0];
-  let x2 = x.length > 1 ? '.' + x[1] : '';
-  var rgx = /(\d+)(\d{3})/;
-  while (rgx.test(x1)) {
-    x1 = x1.replace(rgx, '$1' + ' ' + '$2');
-  }
-  return x1 + x2;
-};
-
 var stateDb = new PouchDB('http://localhost:5984/hattrick_state');
 
-stateDb.get('state').then( ( currentState ) => {
+function displaySimilarPlayers( currentState ) {
 
-  if ( currentState && currentState.state === 'INACTIVE' && transferBidPage.exec(window.location.href)) {
+  if ( (!currentState || currentState.state === 'INACTIVE') && transferBidPage.exec(window.location.href)) {
 
     var playerId = getPlayerId(window.location.href);
 
@@ -43,6 +30,7 @@ stateDb.get('state').then( ( currentState ) => {
     now = now - 180*60*1000; // 3 hours
 
     playersDb.query(function (doc) {
+      // TODO: currently hardcoded - to be set dynamically
       if ( doc.price < doc.priceForProfit2days &&
            doc.price < 600000 &&
            doc.priceForProfit2days < 600000 &&
@@ -67,14 +55,11 @@ stateDb.get('state').then( ( currentState ) => {
         if ( deadline - now > 0 ) {
           let playerLink = SERVER.concat('/Club/Players/Player.aspx?playerId=', playerList[index].id, '&browseIds=');
           let id = playerList[index].id;
-          console.error(id, playerId);
           if ( id === playerId ) {
             id = id.concat(' <----');
           }
-          console.error(id);
 
           playerLinksHtml = playerLinksHtml.concat('<a href=\"', playerLink, '\">', id, '</a>');
-          console.error(playerLinksHtml);
         }
       }
 
@@ -87,7 +72,11 @@ stateDb.get('state').then( ( currentState ) => {
     });
 
   }
+}
 
+stateDb.get('state').then( ( currentState ) => {
+  displaySimilarPlayers( currentState );
 }).catch( () => {
   console.warn('state is not set');
+  displaySimilarPlayers( currentState );
 });
